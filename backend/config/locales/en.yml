@@ -1,0 +1,13 @@
+en:
+  activerecord:
+    models:
+      subnet: Subnet
+      ip_address: IP address
+    attributes:
+      subnet:
+        cidr: CIDR
+        vlan_id: VLAN ID
+      ip_address:
+        address: Address
+        address_int: Address
+        mac_address: MAC address
