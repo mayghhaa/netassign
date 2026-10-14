@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_14_153300) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_14_160030) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gist"
   enable_extension "pg_catalog.plpgsql"
@@ -32,6 +32,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_153300) do
     t.index ["subnet_id"], name: "index_ip_addresses_on_subnet_id"
   end
 
+  create_table "sessions", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "ip_address"
+    t.string "user_agent"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_sessions_on_user_id"
+  end
+
   create_table "subnets", force: :cascade do |t|
     t.string "cidr", null: false
     t.string "name", null: false
@@ -50,6 +59,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_153300) do
     t.exclusion_constraint "ip_version WITH =, numrange(range_start, range_end, '[]'::text) WITH &&", using: :gist, name: "subnets_no_overlap"
   end
 
+  create_table "users", force: :cascade do |t|
+    t.string "email_address", null: false
+    t.string "name", null: false
+    t.string "password_digest", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["email_address"], name: "index_users_on_email_address", unique: true
+  end
+
   create_table "versions", force: :cascade do |t|
     t.string "item_type", null: false
     t.bigint "item_id", null: false
@@ -63,4 +81,5 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_153300) do
   end
 
   add_foreign_key "ip_addresses", "subnets", on_delete: :cascade
+  add_foreign_key "sessions", "users"
 end

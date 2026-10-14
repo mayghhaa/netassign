@@ -1,51 +1,36 @@
 import { useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
-import useActor from '../hooks/useActor.js'
+import useAuth from '../hooks/useAuth.js'
 
 const navClass = ({ isActive }) =>
   `rounded-md px-3 py-2 text-sm font-medium transition ${
     isActive ? 'bg-white/15 text-white' : 'text-indigo-100 hover:bg-white/10 hover:text-white'
   }`
 
-function ActorBadge() {
-  const [actor, setActor] = useActor()
-  const [draft, setDraft] = useState(null)
-
-  if (draft !== null) {
-    return (
-      <form
-        onSubmit={(e) => {
-          e.preventDefault()
-          setActor(draft)
-          setDraft(null)
-        }}
-        className="flex items-center gap-2"
-      >
-        <input
-          autoFocus
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          onBlur={() => setDraft(null)}
-          placeholder="Your name"
-          aria-label="Engineer name"
-          className="w-36 rounded-md border-0 bg-white/15 px-2 py-1 text-sm text-white placeholder:text-indigo-200 focus:ring-2 focus:ring-white/60 focus:outline-none"
-        />
-      </form>
-    )
-  }
+function UserMenu() {
+  const { user, logout } = useAuth()
+  const [signingOut, setSigningOut] = useState(false)
 
   return (
-    <button
-      type="button"
-      onClick={() => setDraft(actor)}
-      title="Changes you make are attributed to this name in the audit log"
-      className="flex items-center gap-2 rounded-md px-2 py-1 text-sm text-indigo-100 hover:bg-white/10"
-    >
-      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white/20 text-xs font-semibold text-white">
-        {(actor || '?').charAt(0).toUpperCase()}
+    <div className="flex items-center gap-2">
+      <span className="flex items-center gap-2 px-2 py-1 text-sm text-indigo-100" title={user.email_address}>
+        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white/20 text-xs font-semibold text-white">
+          {user.name.charAt(0).toUpperCase()}
+        </span>
+        <span className="hidden sm:inline">{user.name}</span>
       </span>
-      {actor || 'Set your name'}
-    </button>
+      <button
+        type="button"
+        disabled={signingOut}
+        onClick={() => {
+          setSigningOut(true)
+          logout()
+        }}
+        className="rounded-md px-2 py-1 text-sm font-medium text-indigo-100 hover:bg-white/10 hover:text-white disabled:opacity-60"
+      >
+        Sign out
+      </button>
+    </div>
   )
 }
 
@@ -68,7 +53,7 @@ export default function Layout() {
               </NavLink>
             </nav>
           </div>
-          <ActorBadge />
+          <UserMenu />
         </div>
         <nav className="flex gap-1 px-4 pb-2 sm:hidden">
           <NavLink to="/" end className={navClass}>

@@ -1,5 +1,5 @@
 const BASE_URL = (import.meta.env.VITE_API_URL ?? '/api/v1').replace(/\/$/, '')
-export const ACTOR_KEY = 'netassign.actor'
+export const UNAUTHORIZED_EVENT = 'netassign:unauthorized'
 
 export class ApiError extends Error {
   constructor(message, { status, fieldErrors } = {}) {
@@ -21,14 +21,13 @@ function buildUrl(path, params) {
 export async function request(path, { method = 'GET', params, body, signal } = {}) {
   const headers = { Accept: 'application/json' }
   if (body !== undefined) headers['Content-Type'] = 'application/json'
-  const actor = window.localStorage.getItem(ACTOR_KEY)
-  if (actor) headers['X-Actor'] = actor
 
   let response
   try {
     response = await fetch(buildUrl(path, params), {
       method,
       headers,
+      credentials: 'include',
       signal,
       body: body === undefined ? undefined : JSON.stringify(body),
     })
@@ -40,6 +39,7 @@ export async function request(path, { method = 'GET', params, body, signal } = {
   if (response.status === 204) return null
   const payload = await response.json().catch(() => null)
   if (!response.ok) {
+    if (response.status === 401) window.dispatchEvent(new Event(UNAUTHORIZED_EVENT))
     throw new ApiError(payload?.error ?? `Request failed (${response.status})`, {
       status: response.status,
       fieldErrors: payload?.errors,
@@ -49,6 +49,9 @@ export async function request(path, { method = 'GET', params, body, signal } = {
 }
 
 export const api = {
+  getSession: (opts) => request('/session', opts),
+  login: (email_address, password) => request('/session', { method: 'POST', body: { email_address, password } }),
+  logout: () => request('/session', { method: 'DELETE' }),
   listSubnets: (params, opts) => request('/subnets', { params, ...opts }),
   getSubnet: (id, opts) => request(`/subnets/${id}`, opts),
   createSubnet: (subnet) => request('/subnets', { method: 'POST', body: { subnet } }),

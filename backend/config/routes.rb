@@ -9,6 +9,7 @@ Rails.application.routes.draw do
         end
       end
       resources :audit_logs, only: :index
+      resource :session, only: %i[show create destroy]
     end
   end
 end

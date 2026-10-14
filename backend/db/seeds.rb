@@ -1,6 +1,13 @@
 # Idempotent demo data: bin/rails db:seed
 PaperTrail.request.whodunnit = "seed"
 
+unless Rails.env.production?
+  User.find_or_create_by!(email_address: "admin@netassign.local") do |user|
+    user.name = "Demo Admin"
+    user.password = "netassign-demo"
+  end
+end
+
 subnets = [
   { cidr: "10.0.0.0/24", name: "Core Servers", vlan_id: 10, environment: "production", description: "Primary datacenter server VLAN" },
   { cidr: "10.0.1.0/24", name: "Database Tier", vlan_id: 20, environment: "production", description: "PostgreSQL & Redis clusters" },
