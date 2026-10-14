@@ -43,11 +43,6 @@ RSpec.describe "Api::V1::Subnets" do
       expect(response).to have_http_status(:unprocessable_content)
       expect(json["errors"]["cidr"].first).to include("overlaps")
     end
-
-    it "records the actor from the X-Actor header" do
-      post "/api/v1/subnets", params: params, as: :json, headers: { "X-Actor" => "megha" }
-      expect(PaperTrail::Version.last.whodunnit).to eq("megha")
-    end
   end
 
   it "updates and deletes subnets" do

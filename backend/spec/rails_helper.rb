@@ -64,6 +64,7 @@ RSpec.configure do |config|
   #
   # To enable this behaviour uncomment the line below.
   config.infer_spec_type_from_file_location!
+  Rails.root.glob('spec/support/**/*.rb').sort_by(&:to_s).each { |f| require f }
 
   # Filter lines from Rails gems in backtraces.
   config.filter_rails_from_backtrace!

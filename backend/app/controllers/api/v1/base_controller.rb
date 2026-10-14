@@ -29,7 +29,7 @@ module Api
       private
 
       def user_for_paper_trail
-        request.headers["X-Actor"].presence&.first(100) || "api"
+        Current.user&.email_address || "api"
       end
 
       def render_errors(record)
